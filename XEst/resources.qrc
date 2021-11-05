@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/10_save32.png</file>
+        <file>images/11_clip32.png</file>
+        <file>images/12_zoom32.png</file>
+        <file>images/13_scroll32.png</file>
+        <file>images/14_angle32.png</file>
+        <file>images/15_time32.png</file>
+        <file>images/16_grid32.png</file>
+        <file>images/17_split-32.png</file>
+        <file>images/18_autorefresh.png</file>
+        <file>images/19_manrefresh.png</file>
+        <file>images/20_help32.png</file>
+        <file>images/xsplit.png</file>
+        <file>images/ysplit.png</file>
+        <file>images/xcrd.png</file>
+        <file>images/ycrd.png</file>
+    </qresource>
+</RCC>
