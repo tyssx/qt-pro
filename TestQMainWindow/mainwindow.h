@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+class VersionDialog;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -14,5 +16,6 @@ public:
 private:
     void myMenuBar();
     void myToolBar();
+    VersionDialog *m_versionDialog;
 };
 #endif // MAINWINDOW_H
