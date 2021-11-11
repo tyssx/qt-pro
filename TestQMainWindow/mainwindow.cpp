@@ -1,6 +1,7 @@
 ﻿#include "mainwindow.h"
 
 #include "versiondialog.h"
+#include "wordwidget.h"
 
 #include <QColorDialog>
 #include <QDebug>
@@ -37,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QMenu *fileMenu   = mBar->addMenu("文件");
     QMenu *editMenu   = mBar->addMenu("编辑");
     QMenu *dialogMenu = mBar->addMenu("对话框");
+    QMenu *setMenu    = mBar->addMenu("设置");
     QMenu *helpMenu   = mBar->addMenu("帮助");
 
     //添加菜单项
@@ -52,6 +54,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QAction *modelessAction = dialogMenu->addAction("非模态");
     QAction *aboutAction    = dialogMenu->addAction("关于");
     QAction *colorAction    = dialogMenu->addAction("颜色");
+
+    QAction *wordSetAction = setMenu->addAction("文字设置");
 
     QAction *versionAction = helpMenu->addAction("版本号");
 
@@ -85,6 +89,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         qDebug() << color.blue();
     });
 
+    m_wordWidget = new WordWidget();
+    m_wordWidget->setVisible(false);
+    connect(wordSetAction, &QAction::triggered, this, [=]() {
+        m_wordWidget->setWindowTitle("文字设置");
+        m_wordWidget->show();
+        m_wordWidget->raise();
+    });
     m_versionDialog = new VersionDialog(this);
     connect(versionAction, &QAction::triggered, this, [=]() {
         m_versionDialog->setWindowTitle("版本信息");
@@ -159,6 +170,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 MainWindow::~MainWindow()
 {
+    qDebug() << "~MainWindow";
+    delete m_wordWidget;
 }
 
 void MainWindow::myMenuBar()

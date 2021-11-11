@@ -4,6 +4,7 @@
 #include <QMainWindow>
 
 class VersionDialog;
+class WordWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -17,5 +18,6 @@ private:
     void myMenuBar();
     void myToolBar();
     VersionDialog *m_versionDialog;
+    WordWidget *m_wordWidget;
 };
 #endif // MAINWINDOW_H
