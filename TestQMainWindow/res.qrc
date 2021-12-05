@@ -1,15 +1,41 @@
 <RCC>
     <qresource prefix="/">
-        <file>Image/butterfly.png</file>
-        <file>Image/butterfly1.png</file>
-        <file>Image/down.png</file>
-        <file>Image/Frame.jpg</file>
-        <file>Image/Luffy.png</file>
-        <file>Image/LuffyQ.png</file>
-        <file>Image/mario.gif</file>
-        <file>Image/OnePiece.png</file>
-        <file>Image/Sunny.jpg</file>
-        <file>Image/sunny.png</file>
         <file>Image/up.png</file>
+        <file>Image/close.jpg</file>
+        <file>Image/open.jpg</file>
+        <file>Image/save.jpg</file>
+        <file>Image/414.bmp</file>
+        <file>Image/415.bmp</file>
+        <file>Image/416.bmp</file>
+        <file>Image/417.bmp</file>
+        <file>Image/418.bmp</file>
+        <file>Image/419.bmp</file>
+        <file>Image/424.bmp</file>
+        <file>Image/425.bmp</file>
+        <file>Image/426.bmp</file>
+        <file>Image/427.bmp</file>
+        <file>Image/814.bmp</file>
+        <file>Image/824.bmp</file>
+        <file>Image/copy.bmp</file>
+        <file>Image/cut.bmp</file>
+        <file>Image/delete1.bmp</file>
+        <file>Image/delete2.bmp</file>
+        <file>Image/exit.bmp</file>
+        <file>Image/fold.bmp</file>
+        <file>Image/fold2.bmp</file>
+        <file>Image/folder1.bmp</file>
+        <file>Image/folder2.bmp</file>
+        <file>Image/paste.bmp</file>
+        <file>Image/open1.bmp</file>
+        <file>Image/save1.bmp</file>
+        <file>Image/preview.bmp</file>
+        <file>Image/print.bmp</file>
+        <file>Image/close1.bmp</file>
+        <file>Image/15.ico</file>
+        <file>Image/31.ico</file>
+        <file>Image/boy.ico</file>
+        <file>Image/girl.ico</file>
+        <file>Image/no.bmp</file>
+        <file>Image/yes.bmp</file>
     </qresource>
 </RCC>

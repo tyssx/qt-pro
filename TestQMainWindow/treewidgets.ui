@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TreeWidgets</class>
+ <widget class="QMainWindow" name="TreeWidgets">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1099</width>
+    <height>773</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QScrollArea" name="scrollArea">
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="scrollAreaWidgetContents">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>717</width>
+         <height>639</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1099</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>目录树</string>
+    </property>
+    <addaction name="actionAddFolder"/>
+    <addaction name="separator"/>
+    <addaction name="actionAddFiles"/>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>视图</string>
+    </property>
+    <addaction name="actionZoomIn"/>
+    <addaction name="actionZoomOut"/>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menu_2"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionAddFolder"/>
+   <addaction name="actionAddFiles"/>
+   <addaction name="actionDeleteItem"/>
+   <addaction name="actionScanItems"/>
+   <addaction name="separator"/>
+   <addaction name="actionZoomIn"/>
+   <addaction name="actionZoomOut"/>
+   <addaction name="actionZoomRealSize"/>
+   <addaction name="actionZoomFitW"/>
+   <addaction name="actionZoomFitH"/>
+   <addaction name="actionDockFloat"/>
+   <addaction name="actionDockVisible"/>
+   <addaction name="actionQuit"/>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget">
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>图片目录树</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QTreeWidget" name="treeFiles">
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="itemsExpandable">
+        <bool>true</bool>
+       </property>
+       <column>
+        <property name="text">
+         <string>节点</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>节点类型</string>
+        </property>
+       </column>
+       <item>
+        <property name="text">
+         <string>图片文件</string>
+        </property>
+        <property name="icon">
+         <iconset resource="res.qrc">
+          <normaloff>:/Image/15.ico</normaloff>:/Image/15.ico</iconset>
+        </property>
+        <item>
+         <property name="text">
+          <string>分组节点</string>
+         </property>
+         <property name="icon">
+          <iconset resource="res.qrc">
+           <normaloff>:/Image/folder1.bmp</normaloff>:/Image/folder1.bmp</iconset>
+         </property>
+         <item>
+          <property name="text">
+           <string>图片节点</string>
+          </property>
+          <property name="icon">
+           <iconset resource="res.qrc">
+            <normaloff>:/Image/31.ico</normaloff>:/Image/31.ico</iconset>
+          </property>
+         </item>
+        </item>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <action name="actionAddFolder">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/Image/folder1.bmp</normaloff>:/Image/folder1.bmp</iconset>
+   </property>
+   <property name="text">
+    <string>添加目录</string>
+   </property>
+   <property name="toolTip">
+    <string>添加目录</string>
+   </property>
+  </action>
+  <action name="actionAddFiles">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/Image/824.bmp</normaloff>:/Image/824.bmp</iconset>
+   </property>
+   <property name="text">
+    <string>添加文件</string>
+   </property>
+   <property name="toolTip">
+    <string>添加文件</string>
+   </property>
+  </action>
+  <action name="actionZoomIn">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/Image/418.bmp</normaloff>:/Image/418.bmp</iconset>
+   </property>
+   <property name="text">
+    <string>放大</string>
+   </property>
+   <property name="toolTip">
+    <string>放大</string>
+   </property>
+  </action>
+  <action name="actionZoomOut">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/Image/416.bmp</normaloff>:/Image/416.bmp</iconset>
+   </property>
+   <property name="text">
+    <string>缩小</string>
+   </property>
+   <property name="toolTip">
+    <string>缩小</string>
+   </property>
+  </action>
+  <action name="actionZoomRealSize">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/Image/414.bmp</normaloff>:/Image/414.bmp</iconset>
+   </property>
+   <property name="text">
+    <string>实际大小</string>
+   </property>
+   <property name="toolTip">
+    <string>实际大小</string>
+   </property>
+  </action>
+  <action name="actionZoomFitW">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/Image/424.bmp</normaloff>:/Image/424.bmp</iconset>
+   </property>
+   <property name="text">
+    <string>适合宽度</string>
+   </property>
+  </action>
+  <action name="actionDeleteItem">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/Image/delete1.bmp</normaloff>:/Image/delete1.bmp</iconset>
+   </property>
+   <property name="text">
+    <string>删除节点</string>
+   </property>
+  </action>
+  <action name="actionZoomFitH">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/Image/426.bmp</normaloff>:/Image/426.bmp</iconset>
+   </property>
+   <property name="text">
+    <string>适合高度</string>
+   </property>
+  </action>
+  <action name="actionScanItems">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/Image/fold.bmp</normaloff>:/Image/fold.bmp</iconset>
+   </property>
+   <property name="text">
+    <string>遍历节点</string>
+   </property>
+  </action>
+  <action name="actionDockVisible">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/Image/414.bmp</normaloff>:/Image/414.bmp</iconset>
+   </property>
+   <property name="text">
+    <string>窗体可见</string>
+   </property>
+  </action>
+  <action name="actionDockFloat">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/Image/814.bmp</normaloff>:/Image/814.bmp</iconset>
+   </property>
+   <property name="text">
+    <string>窗体浮动</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/Image/exit.bmp</normaloff>:/Image/exit.bmp</iconset>
+   </property>
+   <property name="text">
+    <string>退出</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionQuit</sender>
+   <signal>triggered()</signal>
+   <receiver>TreeWidgets</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>482</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

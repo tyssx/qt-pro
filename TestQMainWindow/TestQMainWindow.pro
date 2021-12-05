@@ -11,11 +11,23 @@ CONFIG += c++11
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    versiondialog.cpp
+    versiondialog.cpp \
+    wordwidget.cpp \
+    colorsetdialog.cpp \
+    timedatesetdialog.cpp \
+    listwidgets.cpp \
+    treewidgets.cpp \
+    tablewidgets.cpp
 
 HEADERS += \
     mainwindow.h \
-    versiondialog.h
+    versiondialog.h \
+    wordwidget.h \
+    colorsetdialog.h \
+    timedatesetdialog.h \
+    listwidgets.h \
+    treewidgets.h \
+    tablewidgets.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -26,4 +38,10 @@ RESOURCES += \
     res.qrc
 
 FORMS += \
-    versiondialog.ui
+    versiondialog.ui \
+    wordwidget.ui \
+    colorsetdialog.ui \
+    timedatesetdialog.ui \
+    listwidgets.ui \
+    treewidgets.ui \
+    tablewidgets.ui
