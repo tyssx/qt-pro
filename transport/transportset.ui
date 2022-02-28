@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TransportSet</class>
+ <widget class="QDialog" name="TransportSet">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>609</width>
+    <height>606</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>9</x>
+     <y>9</y>
+     <width>206</width>
+     <height>181</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>快捷IO：</string>
+   </property>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>1</x>
+      <y>17</y>
+      <width>202</width>
+      <height>141</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout" columnstretch="3,0,0">
+     <item row="2" column="2">
+      <widget class="QPushButton" name="pushButtonArriveResist">
+       <property name="text">
+        <string>打开到位阻挡</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QPushButton" name="pushButtonWaitResist">
+       <property name="text">
+        <string>打开待料阻挡</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QPushButton" name="pushButtonUnloadingPush">
+       <property name="text">
+        <string>推入下料料夹</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QPushButton" name="pushButtonMaterBoard">
+       <property name="text">
+        <string>抬升物料顶板</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="pushButtonAirSwitch">
+       <property name="text">
+        <string>打开气压</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="4" column="0">
+      <widget class="QPushButton" name="pushButtonLoadingPush">
+       <property name="text">
+        <string>推出上料料夹</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
+      <widget class="QPushButton" name="pushButtonUnloadingBoard">
+       <property name="text">
+        <string>下料夹抬升顶升</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBoxTransport">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>210</y>
+     <width>206</width>
+     <height>181</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>物料运输：</string>
+   </property>
+   <widget class="QPushButton" name="pushButtonTransport">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>140</y>
+      <width>80</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>启动物料运输</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QWidget" name="widgetTransport" native="true">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>181</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>164</width>
+       <height>43</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="ArrowsButton" name="pushButtonLeft">
+        <property name="minimumSize">
+         <size>
+          <width>75</width>
+          <height>41</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>向左运输</string>
+        </property>
+        <property name="text">
+         <string>PushButton</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="ArrowsButton" name="pushButtonRight">
+        <property name="minimumSize">
+         <size>
+          <width>75</width>
+          <height>41</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>向右运输</string>
+        </property>
+        <property name="text">
+         <string>PushButton</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_3">
+   <property name="geometry">
+    <rect>
+     <x>221</x>
+     <y>9</y>
+     <width>351</width>
+     <height>381</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>夹料轨道：</string>
+   </property>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>189</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>当前位置：</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="lineEditRailCurPos">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="widgetRailWidth" native="true">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>331</width>
+      <height>271</height>
+     </rect>
+    </property>
+    <widget class="ArrowsButton" name="pushButtonBack">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>10</y>
+       <width>161</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>轨道向后</string>
+     </property>
+     <property name="text">
+      <string>PushButton</string>
+     </property>
+    </widget>
+    <widget class="ArrowsButton" name="pushButtonFront">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>120</y>
+       <width>161</width>
+       <height>70</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>轨道向前</string>
+     </property>
+     <property name="text">
+      <string>PushButton</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QPushButton" name="pushButtonLoading">
+   <property name="geometry">
+    <rect>
+     <x>400</x>
+     <y>400</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>上料</string>
+   </property>
+  </widget>
+  <widget class="RockerWidget" name="widgetLoadingRocker" native="true">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>440</y>
+     <width>41</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>上料轴调节</string>
+   </property>
+  </widget>
+  <widget class="RockerWidget" name="widgetUnloadingRocker" native="true">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>440</y>
+     <width>41</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>下料轴调节</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButtonUnloading">
+   <property name="geometry">
+    <rect>
+     <x>500</x>
+     <y>400</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>下料</string>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ArrowsButton</class>
+   <extends>QPushButton</extends>
+   <header location="global">./transport/arrowsbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>RockerWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">./transport/rockerwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

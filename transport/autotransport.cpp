@@ -1,4 +1,4 @@
-#include "autotransport.h"
+﻿#include "autotransport.h"
 
 #include <QDebug>
 #include <QThread>
@@ -63,9 +63,7 @@ void AutoTransport::slot_loading()
             m_vctLoadFlag.resize(0);
         }
 
-        if (value) { 
-            
-            moveToLoadBoardPos(); }
+        if (value) { moveToLoadBoardPos(); }
         ++m_loadCurLayer;
         if (m_loadCurLayer == 3) m_loadCurLayer = 0;
     }
