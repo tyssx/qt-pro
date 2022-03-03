@@ -11,12 +11,14 @@ class AutoTransport : public QObject
     Q_OBJECT
 public:
     explicit AutoTransport(const DeviceManager *device, QObject *parent = nullptr);
+    ~AutoTransport();
 
 signals:
-    void startDetect();
+    void waitDetect(); //物料放置完毕待检测
     void endDetect();
     void noLoadMagazine();   //无上料盒
     void noUnloadMagazine(); //无下料盒
+    void advanceBoardError();  //进板错误
 
 public slots:
     void slot_loading();
@@ -30,18 +32,18 @@ private:
     bool pushOutPlatform(/*bool firstLayer = false*/); //推出顶板
     void continuePushOut();
     bool pressBoard(); //压板
-    void advanceBoard();
+    bool advanceBoard(bool isCenter);
     void alarm(); //报警
 
 private slots:
-
     void slot_timeout();
+
 
 private:
     const DeviceManager *const m_device;
     CMotionCtrlDev *m_motion = nullptr; //运动控制器
     QThread *m_thread;
-    bool m_loadIsRun, m_unloadIsRun;
+    bool m_loadIsRun/*, m_unloadIsRun*/;
     int m_transptAxis;             //运输轴
     int m_loadAxis;                //上料轴
     int m_unloadAxis;              //下料轴
@@ -57,7 +59,7 @@ private:
     int m_unloadBoardLayer;                       //下料板层数
     QTimer *m_timer;
     bool m_timeout;
-    bool m_waitPushIn;
+//    bool m_waitPushIn;
 };
 
 #endif // AUTOTRANSPORT_H

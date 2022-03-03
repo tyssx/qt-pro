@@ -1,46 +1,58 @@
 ﻿#include "autotransport.h"
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QThread>
 #include <QTime>
 #include <QTimer>
 
-#define LAYER_NUM 20
-
-// int AutoTransport::m_loadBoardLayer = 0;
+#define LAYER_NUM 20 //料盒装板层数
 
 AutoTransport::AutoTransport(const DeviceManager *device, QObject *parent)
     : QObject(parent), m_device(device)
 {
     m_thread = new QThread;
     this->moveToThread(m_thread);
+    m_thread->start();
+
+    m_loadIsRun = true;
+    //    m_unloadIsRun = true;
+    //    m_waitPushIn     = false;
+    m_loadCurLayer     = 0;
+    m_loadBoardLayer   = 0;
+    m_unloadCurLayer   = 2;
+    m_unloadBoardLayer = 0;
 
     m_motion      = m_device->motion();
     m_transptAxis = m_device->axisInfo().transport;
     m_loadAxis    = m_device->axisInfo().loading;
     m_unloadAxis  = m_device->axisInfo().unloading;
 
-    m_thread->start();
+    //打开气压，降下顶升阻挡
     m_motion->writeOutBit(DeviceManager::OUT6, 1);
+    m_motion->writeOutBit(DeviceManager::OUT7, 0);
+    m_motion->writeOutBit(DeviceManager::OUT8, 0);
+    m_motion->writeOutBit(DeviceManager::OUT9, 0);
 
     initMagazinegPos();
 
     m_timeout = false;
     m_timer   = new QTimer();
-    m_timer->setInterval(2000);
-    m_timer->moveToThread(m_thread);
+    m_timer->setInterval(4000);
     connect(m_timer, &QTimer::timeout, this, &AutoTransport::slot_timeout);
+}
 
-    m_loadIsRun   = true;
-    m_unloadIsRun = true;
-    //    m_waitPushIn     = false;
-    m_loadCurLayer   = 0;
-    m_unloadCurLayer = 2;
+AutoTransport::~AutoTransport()
+{
+    m_thread->exit();
+    m_thread->wait();
+    delete m_thread;
 }
 
 void AutoTransport::slot_loading()
 {
     m_vctLoadFlag.clear();
+    m_loadIsRun = true;
     if (m_motion && m_motion->isAvailable())
     {
         uint32 value = 0;
@@ -83,11 +95,16 @@ void AutoTransport::slot_loading()
                 while (!result)
                 {
                     result = pushInPlatform();
-                    if (m_loadBoardLayer == 20)
+                    if (m_loadBoardLayer == LAYER_NUM)
                     {
                         qDebug() << "板层到达20层";
                         break;
                     }
+                }
+                if (result)
+                {
+                    m_loadIsRun = false;
+                    continue;
                 }
             }
             ++m_loadCurLayer;
@@ -161,12 +178,12 @@ void AutoTransport::run()
 
 void AutoTransport::initMagazinegPos()
 {
-    m_loadPos[0]   = 0;
-    m_loadPos[1]   = 243.112; // 248.112  253.112 258.112
-    m_loadPos[2]   = 493.322; // 499.322 505.322
-    m_unloadPos[0] = 524.595; //暂时是匣底，是否改为匣顶
-    m_unloadPos[1] = 274.820;
-    m_unloadPos[2] = 25.225;
+    m_loadPos[0]   = 10.451;
+    m_loadPos[1]   = 261.346;
+    m_loadPos[2]   = 511.496;
+    m_unloadPos[0] = 19.440; //暂时是匣底，是否改为匣顶
+    m_unloadPos[1] = 269.745;
+    m_unloadPos[2] = 518.940;
     m_dis          = 6.0;
 }
 
@@ -175,7 +192,7 @@ void AutoTransport::moveToLoadBoardPos()
     //    for (int i = 1; i < LAYER_NUM; i++)
     //    {
     //    m_motion->move(m_loadAxis, m_loadPos[layer] + m_dis * i, CMotionCtrlDev::POS_ABSOLUTE);
-    if (m_loadBoardLayer == 20)
+    if (m_loadBoardLayer == LAYER_NUM)
     {
         m_loadCurLayer++;
         if (m_loadCurLayer == 3) m_loadCurLayer = 0;
@@ -214,14 +231,16 @@ void AutoTransport::moveToLoadBoardPos()
                 m_motion->writeOutBit(DeviceManager::OUT9, 1); //抬顶升
                 m_motion->writeOutBit(DeviceManager::OUT7, 1); //升起待料阻挡
                 m_motion->stop(m_transptAxis, CMotionCtrlDev::STOP_SLOWING);
-                emit startDetect();
-                advanceBoard();
+                emit waitDetect();
+                advanceBoard(false);
                 break;
             }
             //            else
             //            {
             //                continue;
             //            }
+            //            QCoreApplication::processEvents(QEventLoop::AllEvents,
+            //            100);//没有这句会陷入死循环
         }
         m_timer->stop();
     }
@@ -255,7 +274,7 @@ bool AutoTransport::pushInPlatform(bool firstLayer)
         while (!m_motion->isIdle(m_loadAxis)) { continue; }
         double curPos;
         m_motion->getPosition(m_loadAxis, curPos);
-        qDebug() << /* "i=" << i << */ "m_loadAxis cur pos" << curPos;
+        qDebug() << "m_loadAxis cur pos" << curPos;
     }
 
     //    QThread::msleep(1000);
@@ -282,13 +301,17 @@ bool AutoTransport::pushInPlatform(bool firstLayer)
             if (value)
             {
                 qDebug() << "检测到到板信号";
+                QThread::msleep(150);
                 m_motion->writeOutBit(DeviceManager::OUT9, 1); //抬顶升
                 m_motion->writeOutBit(DeviceManager::OUT7, 1); //升起待料阻挡
                 m_motion->stop(m_transptAxis, CMotionCtrlDev::STOP_SLOWING);
-                emit startDetect();
-                //                advanceBoard(); //继续上料
+                emit waitDetect();
+                m_timer->stop();
+                advanceBoard(false); //继续上料
                 return true;
             }
+            //            QCoreApplication::processEvents(QEventLoop::AllEvents,
+            //            100);//没有这句会陷入死循环
         }
         m_timer->stop();
         if (m_timeout) //超时
@@ -307,13 +330,17 @@ bool AutoTransport::pushInPlatform(bool firstLayer)
                     if (value)
                     {
                         qDebug() << "检测到到板信号";
+                        QThread::msleep(150);
                         m_motion->writeOutBit(DeviceManager::OUT9, 1); //抬顶升
                         m_motion->writeOutBit(DeviceManager::OUT7, 1); //升起待料阻挡
                         m_motion->stop(m_transptAxis, CMotionCtrlDev::STOP_SLOWING);
-                        emit startDetect();
+                        emit waitDetect();
                         //                advanceBoard(); //继续上料
+                        m_timer->stop();
                         return true;
                     }
+                    //                    QCoreApplication::processEvents(QEventLoop::AllEvents,
+                    //                    100);//没有这句会陷入死循环
                 }
                 m_timer->stop();
                 if (m_timeout) //超时
@@ -349,33 +376,35 @@ void AutoTransport::slot_unloading()
         m_motion->writeOutBit(DeviceManager::OUT13, 0); //下料夹顶升下降
         if (m_unloadBoardLayer == 0)
         {
+            int num = 0;
             do
             {
                 m_motion->move(m_unloadAxis,
                     m_unloadPos.value(m_unloadCurLayer) + (LAYER_NUM - 1) * m_dis,
                     CMotionCtrlDev::POS_ABSOLUTE);
+                while (!m_motion->isIdle(m_unloadAxis)) { continue; }
                 m_motion->readInBit(DeviceManager::IN3, value); //检测下料盒信号
                 qDebug() << "下料层数：" << m_unloadCurLayer << "位置："
                          << m_unloadPos.value(m_unloadCurLayer) + (LAYER_NUM - 1) * m_dis
                          << "下料盒感应信号:" << value;
                 if (value) break;
-            } while (++m_unloadCurLayer < 3);
-            if (m_unloadCurLayer == 3)
+                if (--m_unloadCurLayer == -1) m_unloadCurLayer = 2;
+            } while (++num < 3);
+            if (num == 3)
             {
                 alarm();
                 emit noUnloadMagazine();
-                m_unloadCurLayer = 0;
                 return;
             }
         }
         else
         {
             m_motion->move(m_unloadAxis, -m_dis, CMotionCtrlDev::POS_RELATIVE);
+            while (!m_motion->isIdle(m_unloadAxis)) { continue; }
+            double curPos;
+            m_motion->getPosition(m_unloadAxis, curPos);
+            qDebug() << "m_unloadAxis cur pos" << curPos;
         }
-        while (!m_motion->isIdle(m_unloadAxis)) { continue; }
-        double curPos;
-        m_motion->getPosition(m_unloadAxis, curPos);
-        qDebug() << "m_unloadAxis cur pos" << curPos;
 
         //        m_vctUnloadFlag.push_back(value);
         //        if (m_vctUnloadFlag.size() == 3)
@@ -391,17 +420,27 @@ void AutoTransport::slot_unloading()
         //            m_vctUnloadFlag.resize(0);
         //        }
 
-        bool result = pushOutPlatform();   //推出顶板
-        if (result) result = pressBoard(); //继续压板
-        if (result) advanceBoard();        //继续进板
-
-        if (++m_unloadBoardLayer == 20)
+        bool result = pushOutPlatform(); //推出顶板
+        qDebug() << "result 推出顶板" << result;
+        if (result)
         {
-            ++m_unloadCurLayer;
-            if (m_loadCurLayer == 3) m_loadCurLayer = 0;
+            bool isPress = pressBoard(); //继续压板
+            qDebug() << "isPress 继续压板" << isPress;
+            result = advanceBoard(!isPress); //继续进板 result false进到到位感应 true进到待位感应
+            if (!result)
+            {
+                emit advanceBoardError();
+                qDebug() << "emit advanceBoardError";
+            }
+        }
+
+        if (++m_unloadBoardLayer == LAYER_NUM)
+        {
+            --m_unloadCurLayer;
+            if (m_unloadCurLayer == -1) m_unloadCurLayer = 2;
             m_unloadBoardLayer = 0;
         }
-//    }
+        //    }
 #if 1
 
 #else
@@ -523,8 +562,10 @@ bool AutoTransport::pushOutPlatform(/*bool firstLayer*/)
             emit endDetect();
 
             //            break;
+            m_timer->stop();
             return true;
         }
+        //        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);//没有这句会陷入死循环
     }
     m_timer->stop();
     if (m_timeout) qDebug() << "出板错误";
@@ -533,8 +574,11 @@ bool AutoTransport::pushOutPlatform(/*bool firstLayer*/)
 
 void AutoTransport::alarm()
 {
+    qDebug() << "----报警----";
     for (int i = 0; i < 20; i++)
     {
+        if (i < 2) m_motion->writeOutBit(DeviceManager::OUT5, 1);
+        if (i == 2) m_motion->writeOutBit(DeviceManager::OUT5, 0);
         m_motion->writeOutBit(DeviceManager::OUT4, 1);
         QThread::msleep(500);
         m_motion->writeOutBit(DeviceManager::OUT4, 0);
@@ -542,8 +586,45 @@ void AutoTransport::alarm()
     }
 }
 
-void AutoTransport::advanceBoard()
+bool AutoTransport::advanceBoard(bool isCenter)
 {
+    qDebug() << "推料前进-------";
+    uint32 value    = 0;
+    bool firstLayer = false;
+#if 1
+    qDebug() << "料盒层数" << m_loadCurLayer << "板层数" << m_loadBoardLayer;
+    if (m_loadBoardLayer == LAYER_NUM)
+    {
+        int num = 0;
+        m_loadCurLayer++;
+        m_loadBoardLayer = 0;
+
+        do
+        {
+            m_motion->move(
+                m_loadAxis, m_loadPos.value(m_loadCurLayer), CMotionCtrlDev::POS_ABSOLUTE);
+            while (!m_motion->isIdle(m_loadAxis)) { continue; }
+            m_motion->readInBit(DeviceManager::IN2, value); //检测上料盒信号
+            qDebug() << "前进板上料盒层数：" << m_loadCurLayer << "位置："
+                     << m_loadPos.value(m_loadCurLayer) << "上料盒感应信号:" << value;
+            if (value)
+            {
+                firstLayer = true;
+                break;
+            }
+            qDebug() << "料盒层数1" << m_loadCurLayer;
+            if (++m_loadCurLayer == 3) m_loadCurLayer = 0;
+            qDebug() << "料盒层数2" << m_loadCurLayer;
+            qDebug() << "num" << num;
+        } while (++num < 3);
+        if (num == 3)
+        {
+            alarm();
+            emit noLoadMagazine();
+            return false;
+        }
+    }
+#else
     if (m_loadBoardLayer == 20)
     {
         m_loadCurLayer++;
@@ -551,17 +632,21 @@ void AutoTransport::advanceBoard()
         m_motion->move(m_loadAxis, m_loadPos.value(m_loadCurLayer), CMotionCtrlDev::POS_ABSOLUTE);
         m_loadBoardLayer = 0;
     }
-    m_motion->move(m_loadAxis, m_dis, CMotionCtrlDev::POS_RELATIVE);
-    while (!m_motion->isIdle(m_loadAxis)) { continue; }
-    double curPos;
-    m_motion->getPosition(m_loadAxis, curPos);
-    qDebug() << /* "i=" << i << */ "m_loadAxis cur pos" << curPos;
-    uint32 value;
+#endif
+    if (!firstLayer)
+    {
+        m_motion->move(m_loadAxis, m_dis, CMotionCtrlDev::POS_RELATIVE);
+        m_loadBoardLayer++;
+        while (!m_motion->isIdle(m_loadAxis)) { continue; }
+        double curPos;
+        m_motion->getPosition(m_loadAxis, curPos);
+        qDebug() << "m_loadAxis cur pos" << curPos;
+    }
+
     //    m_motion->readInBit(DeviceManager::IN14, value); //检测上料匣是否在原位
     //    if (value)
     //    {
-    qDebug() << "上料匣在原位";
-    value = 0;
+    qDebug() << "推出上料夹";
     m_motion->writeOutBit(DeviceManager::OUT11, 1); //推出上料夹
     QThread::msleep(1000);
     m_motion->writeOutBit(DeviceManager::OUT11, 0); //回收上料夹
@@ -576,15 +661,38 @@ void AutoTransport::advanceBoard()
         m_timer->start();
         while (!m_timeout)
         {
-            m_motion->readInBit(DeviceManager::IN5, value); //检测待板信号
-            if (value)
+            if (!isCenter)
             {
-                qDebug() << "检测检测待板信号";
-                m_motion->stop(m_transptAxis, CMotionCtrlDev::STOP_SLOWING);
+                m_motion->readInBit(DeviceManager::IN5, value); //检测待板信号
+                if (value)
+                {
+                    qDebug() << "检测到待板信号";
+                    QThread::msleep(200); //继续向前走到待位阻挡
+                    m_motion->stop(m_transptAxis, CMotionCtrlDev::STOP_SLOWING);
 
-                //                m_waitPushIn = true;
-                //                while (m_waitPushIn) { qDebug() << "待料等检测"; }
-                break;
+                    //                m_waitPushIn = true;
+                    //                while (m_waitPushIn) { qDebug() << "待料等检测"; }
+                    //                    break;
+                    m_timer->stop();
+                    return true;
+                }
+                //                QCoreApplication::processEvents(QEventLoop::AllEvents,
+                //                100);//没有这句会陷入死循环
+            }
+            else
+            {
+                m_motion->readInBit(DeviceManager::IN6, value); //检测到板信号
+                if (value)
+                {
+                    qDebug() << "检测到到板信号";
+                    QThread::msleep(150);
+                    m_motion->stop(m_transptAxis, CMotionCtrlDev::STOP_SLOWING);
+                    //                    break;
+                    m_timer->stop();
+                    return true;
+                }
+                //                QCoreApplication::processEvents(QEventLoop::AllEvents,
+                //                100);//没有这句会陷入死循环
             }
         }
         m_timer->stop();
@@ -594,6 +702,7 @@ void AutoTransport::advanceBoard()
     //        qDebug() << "未检测到进板信号";
     //        slot_continueLoad();
     //    }
+    return false;
 }
 
 bool AutoTransport::pressBoard()
@@ -604,25 +713,31 @@ bool AutoTransport::pressBoard()
     {
         m_motion->writeOutBit(DeviceManager::OUT7, 0); //回收待料阻挡
     }
-    if (m_motion->isIdle(m_transptAxis))
-        m_motion->move(m_transptAxis, CMotionCtrlDev::DIR_POSITIVE); //运输轴转动
+    //    if (m_motion->isIdle(m_transptAxis))
+    //        m_motion->move(m_transptAxis, CMotionCtrlDev::DIR_POSITIVE); //运输轴转动
+
     m_timeout = false;
     m_timer->start();
+    qDebug() << "m_timer->start()";
     while (!m_timeout)
     {
         m_motion->readInBit(DeviceManager::IN6, value); //检测到板信号
         if (value)
         {
             qDebug() << "检测到到板信号";
+            QThread::msleep(150);
             m_motion->writeOutBit(DeviceManager::OUT9, 1); //抬顶升
             m_motion->writeOutBit(DeviceManager::OUT7, 1); //升起待料阻挡
             m_motion->stop(m_transptAxis, CMotionCtrlDev::STOP_SLOWING);
-            emit startDetect();
+            emit waitDetect();
             //            advanceBoard();
             //            m_waitPushIn = true;
             //            break;
+            m_timer->stop();
             return true;
         }
+        QCoreApplication::processEvents(
+            QEventLoop::WaitForMoreEvents /*AllEvents*/, 100); //没有这句会陷入死循环
         //        else
         //        {
         //            //            qDebug() << "没检测到到板信号";
@@ -630,6 +745,11 @@ bool AutoTransport::pressBoard()
         //        }
     }
     m_timer->stop();
+    if (m_timer)
+    {
+        m_motion->stop(m_transptAxis, CMotionCtrlDev::STOP_SLOWING);
+        qDebug() << "timeout 没有检测到板信号";
+    }
     return false;
 }
 

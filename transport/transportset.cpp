@@ -20,7 +20,6 @@ TransportSet::TransportSet(const DeviceManager *device, QWidget *parent)
     QIcon icon;
     icon.addFile(":/images/transport.png", QSize(), QIcon::Normal, QIcon::Off);
     m_action->setIcon(icon);
-    setButtonStatus(false);
 
     ui->pushButtonLeft->init(ArrowsButton::left);
     ui->pushButtonRight->init(ArrowsButton::right);
@@ -33,6 +32,11 @@ TransportSet::TransportSet(const DeviceManager *device, QWidget *parent)
     m_motion = m_device->motion();
 
     m_autoTransport = new AutoTransport(m_device);
+
+    uint32 value = 0;
+    m_motion->readOutBit(DeviceManager::OUT6, value);
+    on_pushButtonAirSwitch_toggled(value);
+    //        setButtonStatus(false);
 
     timer = new QTimer();
     connect(timer, &QTimer::timeout, this, &TransportSet::slot_timeout);
