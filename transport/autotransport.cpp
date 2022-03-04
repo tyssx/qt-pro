@@ -22,6 +22,7 @@ AutoTransport::AutoTransport(const DeviceManager *device, QObject *parent)
     m_loadBoardLayer   = 0;
     m_unloadCurLayer   = 2;
     m_unloadBoardLayer = 0;
+    m_num              = 0;
 
     m_motion      = m_device->motion();
     m_transptAxis = m_device->axisInfo().transport;
@@ -38,6 +39,7 @@ AutoTransport::AutoTransport(const DeviceManager *device, QObject *parent)
 
     m_timeout = false;
     m_timer   = new QTimer();
+    m_timer->moveToThread(m_thread);
     m_timer->setInterval(4000);
     connect(m_timer, &QTimer::timeout, this, &AutoTransport::slot_timeout);
 }
@@ -84,8 +86,8 @@ void AutoTransport::slot_loading()
                 {
                     //三个上料盒都未找到，报警
                     qDebug() << "三个上料盒都未找到";
-                    alarm();
                     emit noLoadMagazine();
+                    alarm();
                     m_loadIsRun = false;
                 }
                 //                m_vctLoadFlag.resize(0);
@@ -115,8 +117,8 @@ void AutoTransport::slot_loading()
                     if (m_vctLoadFlag.size() == 3)
                     {
                         qDebug() << "轨道未收到物料";
-                        alarm();
                         emit magazineFindError();
+                        alarm();
                         m_loadIsRun = false;
                     }
                 }
@@ -192,13 +194,13 @@ void AutoTransport::run()
 
 void AutoTransport::initMagazinegPos()
 {
-    m_loadPos[0]   = 7.451;
-    m_loadPos[1]   = 257.951;
-    m_loadPos[2]   = 506.951 - 1.0;
-    m_unloadPos[0] = 17.440; //暂时是匣底，是否改为匣顶
-    m_unloadPos[1] = 266.345;
-    m_unloadPos[2] = 517.560;
-    m_dis          = 6.0;
+    m_loadPos[0]   = 6.451;
+    m_loadPos[1]   = 256.582;
+    m_loadPos[2]   = 506.951; // 621.096
+    m_unloadPos[0] = 17.740;  //暂时是匣底，是否改为匣顶
+    m_unloadPos[1] = 268.646;
+    m_unloadPos[2] = 518.060;
+    m_dis          = 6.008;
 }
 
 void AutoTransport::moveToLoadBoardPos()
@@ -279,7 +281,7 @@ bool AutoTransport::pushInPlatform(bool firstLayer)
         m_motion->getPosition(m_loadAxis, curPos);
         qDebug() << "上料轴当前位置：" << curPos;
     }
-    m_loadBoardLayer++;
+    //    m_loadBoardLayer++;
 
     //    QThread::msleep(1000);
     uint32 value = 0;
@@ -310,7 +312,9 @@ bool AutoTransport::pushInPlatform(bool firstLayer)
                 m_motion->stop(m_transptAxis, CMotionCtrlDev::STOP_SLOWING);
                 emit waitDetect();
                 m_timer->stop();
+                ++m_loadBoardLayer;  //加一层
                 advanceBoard(false); //继续上料
+                ++m_loadBoardLayer;
                 return true;
             }
             //            QCoreApplication::processEvents(QEventLoop::AllEvents,
@@ -339,8 +343,9 @@ bool AutoTransport::pushInPlatform(bool firstLayer)
                         m_motion->writeOutBit(DeviceManager::OUT7, 1); //升起待料阻挡
                         m_motion->stop(m_transptAxis, CMotionCtrlDev::STOP_SLOWING);
                         emit waitDetect();
+                        ++m_loadBoardLayer;  //加一层
                         advanceBoard(false); //继续上料
-                        m_timer->stop();
+                        ++m_loadBoardLayer;
                         return true;
                     }
                     //                    QCoreApplication::processEvents(QEventLoop::AllEvents,
@@ -363,6 +368,7 @@ bool AutoTransport::pushInPlatform(bool firstLayer)
     {
         qDebug() << "无进板信号，继续往上层走";
     }
+    ++m_loadBoardLayer;
     return false;
 }
 
@@ -402,8 +408,8 @@ void AutoTransport::slot_unloading()
             {
                 //三个下料盒都未找到，报警
                 qDebug() << "三个下料盒都未找到";
-                alarm();
                 emit noUnloadMagazine();
+                alarm();
                 return;
             }
         }
@@ -423,10 +429,19 @@ void AutoTransport::slot_unloading()
             bool isPress = pressBoard(); //待料压板
             qDebug() << "isPress 继续压板" << isPress;
             result = advanceBoard(!isPress); //继续进板 isPress false进到到位感应 true进到待位感应
-            if (!result)
+            ++m_loadBoardLayer;
+            while (!result)
             {
-                emit advanceBoardError();
-                qDebug() << "emit advanceBoardError";
+                result = advanceBoard(!isPress);
+                ++m_loadBoardLayer;
+                if (m_num == 3)
+                {
+                    emit advanceBoardError();
+                    qDebug() << "emit advanceBoardError";
+                    alarm();
+                    m_num = 0;
+                    break;
+                }
             }
         }
 
@@ -550,7 +565,8 @@ bool AutoTransport::pushOutPlatform(/*bool firstLayer*/)
         if (value)
         {
             qDebug() << "检测到出板信号";
-            m_motion->writeOutBit(DeviceManager::OUT8, 1);  //升起到位阻挡
+            m_motion->writeOutBit(DeviceManager::OUT8, 1); //升起到位阻挡
+            QThread::msleep(300);
             m_motion->writeOutBit(DeviceManager::OUT13, 1); //抬起下料顶升
             m_motion->writeOutBit(DeviceManager::OUT12, 1); //推出下料夹
             QThread::msleep(1000);
@@ -591,7 +607,7 @@ bool AutoTransport::advanceBoard(bool isCenter)
     bool firstLayer = false;
 #if 1
     qDebug() << "料盒层数" << m_loadCurLayer << "板层数" << m_loadBoardLayer;
-    if (++m_loadBoardLayer == LAYER_NUM)
+    if (m_loadBoardLayer == LAYER_NUM)
     {
         int num = 0;
         if (++m_loadCurLayer == 3) m_loadCurLayer = 0;
@@ -617,10 +633,11 @@ bool AutoTransport::advanceBoard(bool isCenter)
         } while (++num < 3);
         if (num == 3)
         {
-            alarm();
             emit noLoadMagazine();
+            alarm();
             return false;
         }
+        m_num++;
     }
 #else
     if (m_loadBoardLayer == 20)
@@ -646,7 +663,7 @@ bool AutoTransport::advanceBoard(bool isCenter)
     //    {
     qDebug() << "推出上料夹";
     m_motion->writeOutBit(DeviceManager::OUT11, 1); //推出上料夹
-    QThread::msleep(5000);
+    QThread::msleep(1000);
     m_motion->writeOutBit(DeviceManager::OUT11, 0); //回收上料夹
     m_motion->readInBit(DeviceManager::IN4, value); //检测进板信号
     if (value)

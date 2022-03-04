@@ -59,6 +59,7 @@ private:
     int m_unloadBoardLayer;                       //下料板层数
     QTimer *m_timer;
     bool m_timeout;
+    int m_num;
     //    bool m_waitPushIn;
 };
 
