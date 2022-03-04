@@ -86,6 +86,17 @@ TransportSet::TransportSet(const DeviceManager *device, QWidget *parent)
         timerB->stop();
         m_motion->stop(m_device->axisInfo().railwidth, CMotionCtrlDev::STOP_IMMEDIATE);
     });
+
+    connect(this,
+        &TransportSet::startLoading,
+        m_autoTransport,
+        &AutoTransport::slot_loading,
+        Qt::QueuedConnection);
+    connect(this,
+        &TransportSet::endDetect,
+        m_autoTransport,
+        &AutoTransport::slot_unloading,
+        Qt::QueuedConnection);
 }
 
 TransportSet::~TransportSet()
@@ -324,10 +335,10 @@ void TransportSet::slot_backTimeout()
 
 void TransportSet::on_pushButtonLoading_clicked()
 {
-    m_autoTransport->slot_loading();
+    emit startLoading();
 }
 
 void TransportSet::on_pushButtonUnloading_clicked()
 {
-    m_autoTransport->slot_unloading();
+    emit endDetect();
 }

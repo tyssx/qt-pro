@@ -60,6 +60,10 @@ private slots:
 private:
     void setButtonStatus(bool flag);
 
+signals:
+    void startLoading();
+    void endDetect();
+
 private:
     Ui::TransportSet *ui;
     const DeviceManager *const m_device;
