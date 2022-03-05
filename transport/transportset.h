@@ -61,7 +61,9 @@ private:
     void setButtonStatus(bool flag);
 
 signals:
-    void startLoading();
+    void detectBoard(bool *haveBoard);
+    void startRun(int arg);
+    void restartLoading();
     void endDetect();
 
 private:

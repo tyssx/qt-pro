@@ -7,6 +7,8 @@
 #include <QAction>
 #include <QDebug>
 #include <QHBoxLayout>
+#include <QMessageBox>
+#include <QThread>
 #include <QTimer>
 
 #define MOVE_DIS 1
@@ -88,9 +90,19 @@ TransportSet::TransportSet(const DeviceManager *device, QWidget *parent)
     });
 
     connect(this,
-        &TransportSet::startLoading,
+        &TransportSet::detectBoard,
         m_autoTransport,
-        &AutoTransport::slot_loading,
+        &AutoTransport::slot_detectBoard,
+        Qt::BlockingQueuedConnection);
+    connect(this,
+        &TransportSet::startRun,
+        m_autoTransport,
+        &AutoTransport::slot_run,
+        Qt::QueuedConnection);
+    connect(this,
+        &TransportSet::restartLoading,
+        m_autoTransport,
+        &AutoTransport::slot_restartLoading,
         Qt::QueuedConnection);
     connect(this,
         &TransportSet::endDetect,
@@ -335,7 +347,29 @@ void TransportSet::slot_backTimeout()
 
 void TransportSet::on_pushButtonLoading_clicked()
 {
-    emit startLoading();
+    //    emit startLoading();
+    bool haveBoard = false;
+    emit detectBoard(&haveBoard);
+    QThread::msleep(50);
+    if (haveBoard)
+    {
+        QMessageBox::StandardButton result = QMessageBox::information(this,
+            "温馨提示",
+            "检测到当前检测位有板，是否从此板开始?",
+            QMessageBox::Yes | QMessageBox::No);
+        if (result == QMessageBox::Yes)
+        {
+            qDebug() << "从当前板开始检测";
+            emit startRun(AutoTransport::detect);
+        }
+        else
+        {
+            qDebug() << "当前板不检测";
+            emit startRun(AutoTransport::noDetect);
+        }
+    }
+    else
+        emit startRun(AutoTransport::noBoard);
 }
 
 void TransportSet::on_pushButtonUnloading_clicked()

@@ -10,6 +10,12 @@ class AutoTransport : public QObject
 {
     Q_OBJECT
 public:
+    enum Detect
+    {
+        noBoard,
+        detect,
+        noDetect
+    };
     explicit AutoTransport(const DeviceManager *device, QObject *parent = nullptr);
     ~AutoTransport();
 
@@ -22,15 +28,21 @@ signals:
     void advanceBoardError(); //进板错误
 
 public slots:
-    void slot_loading();
-    void slot_unloading(); //回收物料
+    ///
+    /// \brief slot_run 开始运行
+    /// \param arg 当前中心顶板是否存在，是否需要检测参数
+    ///
+    void slot_run(int arg);
+    void slot_restartLoading();             //从头开始运行上料
+    void slot_unloading();                  //回收物料
+    void slot_detectBoard(bool *haveBoard); //检测顶升是否有板
+    void slot_toggleBoard(bool flag);       //单独升降板
+    void slot_pushOutBoard();               //退板
 
 private:
-    void initMagazinegPos(); //初始化料盒位置
-    void moveToLoadBoardPos();
+    void initMagazinegPos();                      //初始化料盒位置
     bool pushInPlatform(bool firstLayer = false); //推入顶板
-    void moveToUnloadBoardPos();
-    bool pushOutPlatform(/*bool firstLayer = false*/); //推出顶板
+    bool pushOutPlatform();                       //推出顶板
     void continuePushOut();
     bool pressBoard(); //压板
     bool advanceBoard(bool isCenter);
