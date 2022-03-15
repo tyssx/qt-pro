@@ -214,12 +214,12 @@ void TransportSet::on_pushButtonArriveResist_toggled(bool checked)
 {
     if (checked)
     {
-        m_motion->writeOutBit(DeviceManager::OUT8, 1);
+        m_motion->writeOutBit(DeviceManager::OUT8, 0);
         ui->pushButtonArriveResist->setText("关闭到位阻挡");
     }
     else
     {
-        m_motion->writeOutBit(DeviceManager::OUT8, 0);
+        m_motion->writeOutBit(DeviceManager::OUT8, 1);
         ui->pushButtonArriveResist->setText("打开到位阻挡");
     }
 }
@@ -336,13 +336,13 @@ void TransportSet::slot_rightTimeout()
 void TransportSet::slot_frontTimeout()
 {
     if (m_motion->isAvailable())
-    { m_motion->move(m_device->axisInfo().railwidth, -0.5, CMotionCtrlDev::POS_RELATIVE); }
+    { m_motion->move(m_device->axisInfo().railwidth, 0.5, CMotionCtrlDev::POS_RELATIVE); }
 }
 
 void TransportSet::slot_backTimeout()
 {
     if (m_motion->isAvailable())
-    { m_motion->move(m_device->axisInfo().railwidth, 0.5, CMotionCtrlDev::POS_RELATIVE); }
+    { m_motion->move(m_device->axisInfo().railwidth, -0.5, CMotionCtrlDev::POS_RELATIVE); }
 }
 
 void TransportSet::on_pushButtonLoading_clicked()

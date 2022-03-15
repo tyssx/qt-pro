@@ -40,30 +40,35 @@ public slots:
     void slot_pushOutBoard();               //退板
 
 private:
-    void initMagazinegPos();                                     //初始化料盒位置
-    bool pushInPlatform(bool isCenter, bool firstLayer = false); //推入顶板
-    bool pushOutPlatform();                                      //推出顶板
-    void continuePushOut();
-    bool pressBoard(); //压板
+    void initMagazinegPos();                      //初始化料盒位置
+    void pushBoardIntoRail(int location);           //送板进轨道
+    bool pushInPlatform(bool firstLayer = false); //推入顶板
+    bool pushInWaitSite(bool firstLayer = false); //推入待料处
+    bool pushBoardOutoRail();                    //送板出轨道
+    bool pushOutPlatform();                       //推出顶板
+    bool pressBoard();                            //压板
     bool advanceBoard(bool isCenter);
-    void firstAdvance();
     void alarm(); //报警
 
 private slots:
     void slot_timeout();
 
 private:
+    enum Location
+    {
+        platform, //顶升
+        waitsite  //待料阻挡
+    };
     const DeviceManager *const m_device;
     CMotionCtrlDev *m_motion = nullptr; //运动控制器
     QThread *m_thread;
-    bool m_loadIsRun /*, m_unloadIsRun*/;
-    int m_transptAxis;                            //运输轴
-    int m_loadAxis;                               //上料轴
-    int m_unloadAxis;                             //下料轴
-                                                  //    double m_loadPos[3];   //上料轴目标位置
-                                                  //    double m_unloadPos[3]; //下料轴目标位置
-    QMap<int, double> m_loadPos;                  //上料轴目标位置
-    QMap<int, double> m_unloadPos;                //下料轴目标位置
+    int m_transptAxis;             //运输轴
+    int m_loadAxis;                //上料轴
+    int m_unloadAxis;              //下料轴
+                                   //    double m_loadPos[3];   //上料轴目标位置
+                                   //    double m_unloadPos[3]; //下料轴目标位置
+    QMap<int, double> m_loadPos;   //上料轴目标位置
+    QMap<int, double> m_unloadPos; //下料轴目标位置
     QVector<bool> m_vctLoadFlag, m_vctUnloadFlag; //上料盒标志
     double m_dis;                                 //板间距
     int m_loadCurLayer;                           //上料当前所在层 从下到上依次为0-1-2
@@ -73,7 +78,6 @@ private:
     QTimer *m_timer;
     bool m_timeout;
     int m_num;
-    //    bool m_waitPushIn;
 };
 
 #endif // AUTOTRANSPORT_H
