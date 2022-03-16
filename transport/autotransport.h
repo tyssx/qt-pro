@@ -16,6 +16,13 @@ public:
         detect,
         noDetect
     };
+    struct MagazinePos
+    {
+        int layer;
+        double firstpos[2];
+        double secondpos[2];
+        double thirdpos[2];
+    };
     explicit AutoTransport(const DeviceManager *device, QObject *parent = nullptr);
     ~AutoTransport();
 
@@ -28,6 +35,7 @@ signals:
     void advanceBoardError(); //进板错误
 
 public slots:
+    void slot_updatePos(int flag, MagazinePos param);
     ///
     /// \brief slot_run 开始运行
     /// \param arg 当前中心顶板是否存在，是否需要检测参数
@@ -40,11 +48,11 @@ public slots:
     void slot_pushOutBoard();               //退板
 
 private:
-    void initMagazinegPos();                      //初始化料盒位置
-    void pushBoardIntoRail(int location);           //送板进轨道
+    void initMagazinePos();                       //初始化料盒位置
+    void pushBoardIntoRail(int location);         //送板进轨道
     bool pushInPlatform(bool firstLayer = false); //推入顶板
     bool pushInWaitSite(bool firstLayer = false); //推入待料处
-    bool pushBoardOutoRail();                    //送板出轨道
+    bool pushBoardOutoRail();                     //送板出轨道
     bool pushOutPlatform();                       //推出顶板
     bool pressBoard();                            //压板
     bool advanceBoard(bool isCenter);
@@ -62,19 +70,21 @@ private:
     const DeviceManager *const m_device;
     CMotionCtrlDev *m_motion = nullptr; //运动控制器
     QThread *m_thread;
-    int m_transptAxis;             //运输轴
-    int m_loadAxis;                //上料轴
-    int m_unloadAxis;              //下料轴
-                                   //    double m_loadPos[3];   //上料轴目标位置
-                                   //    double m_unloadPos[3]; //下料轴目标位置
-    QMap<int, double> m_loadPos;   //上料轴目标位置
-    QMap<int, double> m_unloadPos; //下料轴目标位置
+    int m_transptAxis;                      //运输轴
+    int m_loadAxis;                         //上料轴
+    int m_unloadAxis;                       //下料轴
+                                            //    double m_loadPos[3];   //上料轴目标位置
+                                            //    double m_unloadPos[3]; //下料轴目标位置
+    QMap<int, QVector<double>> m_loadPos;   //上料轴目标位置
+    QMap<int, QVector<double>> m_unloadPos; //下料轴目标位置
     QVector<bool> m_vctLoadFlag, m_vctUnloadFlag; //上料盒标志
-    double m_dis;                                 //板间距
+    QMap<int, double> m_loadDis;                  //上料板间距
+    QMap<int, double> m_unloadDis;                //下料板间距
     int m_loadCurLayer;                           //上料当前所在层 从下到上依次为0-1-2
     int m_unloadCurLayer;                         //下料当前所在层 从下到上依次为0-1-2
-    int m_loadBoardLayer;                         //上料板层数
-    int m_unloadBoardLayer;                       //下料板层数
+    int m_loadBoardLayer;                         //上料板当前层数
+    int m_unloadBoardLayer;                       //下料板当前层数
+    int m_loadBoardNum, m_unloadBoardNum;         //上下料板层数
     QTimer *m_timer;
     bool m_timeout;
     int m_num;
