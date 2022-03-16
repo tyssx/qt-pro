@@ -48,16 +48,6 @@ void ArrowsButton::resizeEvent(QResizeEvent *event)
     }
     else if (m_direction == front)
     {
-        pt[0] = QPointF(w / 6, h);
-        pt[1] = QPointF(0, 2 * h / 3);
-        pt[2] = QPointF(w / 6, 2 * h / 3);
-        pt[3] = QPointF(2 * w / 3, 0);
-        pt[4] = QPointF(w, 0);
-        pt[5] = QPointF(w / 2, 2 * h / 3);
-        pt[6] = QPointF(2 * w / 3, 2 * h / 3);
-    }
-    else if (m_direction == back)
-    {
         pt[0] = QPointF(5 * w / 6, 0);
         pt[1] = QPointF(w / 3, h / 3);
         pt[2] = QPointF(w / 2, h / 3);
@@ -65,6 +55,16 @@ void ArrowsButton::resizeEvent(QResizeEvent *event)
         pt[4] = QPointF(w / 3, h);
         pt[5] = QPointF(5 * w / 6, h / 3);
         pt[6] = QPointF(w, h / 3);
+    }
+    else if (m_direction == back)
+    {
+        pt[0] = QPointF(w / 6, h);
+        pt[1] = QPointF(0, 2 * h / 3);
+        pt[2] = QPointF(w / 6, 2 * h / 3);
+        pt[3] = QPointF(2 * w / 3, 0);
+        pt[4] = QPointF(w, 0);
+        pt[5] = QPointF(w / 2, 2 * h / 3);
+        pt[6] = QPointF(2 * w / 3, 2 * h / 3);
     }
     QPolygonF polygon; //多边形
     for (int i = 0; i < 7; i++) { polygon << pt[i]; }

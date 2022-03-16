@@ -20,14 +20,6 @@ class TransportSet : public QDialog
     Q_OBJECT
 
 public:
-    //    struct MagazinePos
-    //    {
-    //        int layer;
-    //        double firstpos[2];
-    //        double secondpos[2];
-    //        double thirdpos[2];
-    //    };
-
     explicit TransportSet(const DeviceManager *device, QWidget *parent = nullptr);
     ~TransportSet();
     QAction *action() { return m_action; }
@@ -39,15 +31,13 @@ protected:
     void timerEvent(QTimerEvent *event) Q_DECL_OVERRIDE;
 
 private slots:
-    void slot_transportAxisMove();
-    void slot_railwidthAxisMove();
     void slot_timeout();
     void slot_buttonPress(QAbstractButton *btn);
     void slot_buttonRelease(QAbstractButton *btn);
     //    void slot_leftTimeout();
     //    void slot_rightTimeout();
-    void slot_frontTimeout();
-    void slot_backTimeout();
+    //    void slot_frontTimeout();
+    //    void slot_backTimeout();
     void slot_loadMovePos(QAbstractButton *button);
     void slot_loadPickPos(QAbstractButton *button);
     void slot_unloadMovePos(QAbstractButton *button);
@@ -104,6 +94,8 @@ private:
     int m_timeId      = 0; //定时器ID
     bool leftIsPress  = false;
     bool rightIsPress = false;
+    bool frontIsPress = false;
+    bool backIsPress  = false;
     AutoTransport::MagazinePos m_loadPos, m_unloadPos;
 };
 

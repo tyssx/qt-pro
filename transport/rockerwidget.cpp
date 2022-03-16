@@ -291,13 +291,13 @@ void RockerWidget::timerEvent(QTimerEvent *event)
             if (m_flag)
             {
                 //上料夹，下料夹伸开时，轴不能动
-                if (m_axisType == 0)
+                if (m_axisType == loading)
                 {
                     uint32 value = 0;
                     m_motion->readInBit(DeviceManager::IN15, value);
                     if (value == 1) return;
                 }
-                else if (m_axisType == 1)
+                else if (m_axisType == unloading)
                 {
                     uint32 value = 0;
                     m_motion->readInBit(DeviceManager::IN39, value);
@@ -305,20 +305,22 @@ void RockerWidget::timerEvent(QTimerEvent *event)
                 }
 
                 //角度计算
-                qreal theta = m_line.angle() * M_PI / 180; //转
-                                                           //速度和摇杆成正比 速度*(线长/工作半径）线长越长速度越快
-                                                           //                qreal v = m_speed.speed_ * m_line.length() / m_radius;
+                qreal theta = m_line.angle() * M_PI /
+                    180; //转
+                         //速度和摇杆成正比 速度*(线长/工作半径）线长越长速度越快
+                         //                qreal v = m_speed.speed_ * m_line.length() / m_radius;
                 qreal v = m_maxSpeed * m_line.length() / m_radius;
                 //            qDebug() << "V is" << v;
                 //计算每个间隔距离
-                qreal s = v * interval / 1000 * 2; //速度为20时，每次能提高的最大距离s为2，*2是为了加大距离
+                qreal s = v * interval / 1000 *
+                    2; //速度为20时，每次能提高的最大距离s为2，*2是为了加大距离
                 //            if (s < 2) s = 2; //如果S太小，则运动控制会有BUG出现，需联系厂家处理
                 //在线变速
                 //            m_motion->changeSpeed(m_z, v);
 
                 double pos;
                 m_motion->getTargetPosition(m_axis, pos); //读取正在运动的目标位置
-                pos -= s * qSin(theta);                   // Z轴0位置在上，>0在下，摇杆线为90度时要减，270度时要加
+                pos -= s * qSin(theta); // Z轴0位置在上，>0在下，摇杆线为90度时要减，270度时要加
 
                 m_motion->changeTargetPosition(m_axis, pos); //在线变位
             }

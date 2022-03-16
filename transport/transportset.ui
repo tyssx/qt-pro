@@ -38,7 +38,7 @@
      <item row="2" column="2">
       <widget class="QPushButton" name="pushButtonArriveResist">
        <property name="text">
-        <string>打开到位阻挡</string>
+        <string>升起到位阻挡</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -48,7 +48,7 @@
      <item row="2" column="0">
       <widget class="QPushButton" name="pushButtonWaitResist">
        <property name="text">
-        <string>打开待料阻挡</string>
+        <string>升起待料阻挡</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -58,7 +58,7 @@
      <item row="4" column="2">
       <widget class="QPushButton" name="pushButtonUnloadingPush">
        <property name="text">
-        <string>推入下料料夹</string>
+        <string>推出下料料夹</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -68,7 +68,7 @@
      <item row="3" column="0">
       <widget class="QPushButton" name="pushButtonMaterBoard">
        <property name="text">
-        <string>抬升物料顶板</string>
+        <string>升起物料顶板</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -111,7 +111,7 @@
      <item row="5" column="2">
       <widget class="QPushButton" name="pushButtonUnloadingBoard">
        <property name="text">
-        <string>下料夹抬升顶升</string>
+        <string>升起下料夹顶升</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -264,7 +264,7 @@
       <height>211</height>
      </rect>
     </property>
-    <widget class="ArrowsButton" name="pushButtonBack">
+    <widget class="ArrowsButton" name="pushButtonFront">
      <property name="geometry">
       <rect>
        <x>160</x>
@@ -274,13 +274,13 @@
       </rect>
      </property>
      <property name="toolTip">
-      <string>轨道向后</string>
+      <string>轨道向前</string>
      </property>
      <property name="text">
       <string>PushButton</string>
      </property>
     </widget>
-    <widget class="ArrowsButton" name="pushButtonFront">
+    <widget class="ArrowsButton" name="pushButtonBack">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -290,7 +290,7 @@
       </rect>
      </property>
      <property name="toolTip">
-      <string>轨道向前</string>
+      <string>轨道向后</string>
      </property>
      <property name="text">
       <string>PushButton</string>

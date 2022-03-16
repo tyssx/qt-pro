@@ -2,7 +2,6 @@
 
 #include "CStorageInterface.h"
 #include "arrowsbutton.h"
-//#include "autotransport.h"
 #include "ui_transportset.h"
 
 #include <QAction>
@@ -13,7 +12,7 @@
 #include <QThread>
 #include <QTimer>
 
-#define MOVE_DIS 1
+//#define MOVE_DIS 1
 #define INTERVAL 50
 
 TransportSet::TransportSet(const DeviceManager *device, QWidget *parent)
@@ -51,17 +50,19 @@ TransportSet::TransportSet(const DeviceManager *device, QWidget *parent)
     connect(timer, &QTimer::timeout, this, &TransportSet::slot_timeout);
     //    QTimer *timerL = new QTimer();
     //    QTimer *timerR = new QTimer();
-    QTimer *timerF = new QTimer();
-    QTimer *timerB = new QTimer();
+    //    QTimer *timerF = new QTimer();
+    //    QTimer *timerB = new QTimer();
 
     //    connect(timerL, &QTimer::timeout, this, &TransportSet::slot_leftTimeout);
     //    connect(timerR, &QTimer::timeout, this, &TransportSet::slot_rightTimeout);
-    connect(timerF, &QTimer::timeout, this, &TransportSet::slot_frontTimeout);
-    connect(timerB, &QTimer::timeout, this, &TransportSet::slot_backTimeout);
+    //    connect(timerF, &QTimer::timeout, this, &TransportSet::slot_frontTimeout);
+    //    connect(timerB, &QTimer::timeout, this, &TransportSet::slot_backTimeout);
 
     QButtonGroup *transGroup = new QButtonGroup;
     transGroup->addButton(ui->pushButtonLeft);
     transGroup->addButton(ui->pushButtonRight);
+    transGroup->addButton(ui->pushButtonFront);
+    transGroup->addButton(ui->pushButtonBack);
     connect(transGroup,
         static_cast<void (QButtonGroup::*)(QAbstractButton *)>(&QButtonGroup::buttonPressed),
         this,
@@ -95,16 +96,16 @@ TransportSet::TransportSet(const DeviceManager *device, QWidget *parent)
        (m_motion->isAvailable()) m_motion->stop(m_device->axisInfo().transport,
        CMotionCtrlDev::STOP_IMMEDIATE);
         });*/
-    connect(ui->pushButtonFront, &ArrowsButton::pressed, this, [=]() { timerF->start(50); });
-    connect(ui->pushButtonFront, &ArrowsButton::released, this, [=]() {
-        timerF->stop();
-        m_motion->stop(m_device->axisInfo().railwidth, CMotionCtrlDev::STOP_IMMEDIATE);
-    });
-    connect(ui->pushButtonBack, &ArrowsButton::pressed, this, [=]() { timerB->start(50); });
-    connect(ui->pushButtonBack, &ArrowsButton::released, this, [=]() {
-        timerB->stop();
-        m_motion->stop(m_device->axisInfo().railwidth, CMotionCtrlDev::STOP_IMMEDIATE);
-    });
+    //    connect(ui->pushButtonFront, &ArrowsButton::pressed, this, [=]() { timerF->start(50); });
+    //    connect(ui->pushButtonFront, &ArrowsButton::released, this, [=]() {
+    //        timerF->stop();
+    //        m_motion->stop(m_device->axisInfo().railwidth, CMotionCtrlDev::STOP_IMMEDIATE);
+    //    });
+    //    connect(ui->pushButtonBack, &ArrowsButton::pressed, this, [=]() { timerB->start(50); });
+    //    connect(ui->pushButtonBack, &ArrowsButton::released, this, [=]() {
+    //        timerB->stop();
+    //        m_motion->stop(m_device->axisInfo().railwidth, CMotionCtrlDev::STOP_IMMEDIATE);
+    //    });
 
     connect(this,
         &TransportSet::updateMagazinePos,
@@ -169,15 +170,31 @@ void TransportSet::timerEvent(QTimerEvent *event)
             {
                 double pos;
                 m_motion->getTargetPosition(m_device->axisInfo().transport, pos);
-                pos -= MOVE_DIS;
+                //                pos -= MOVE_DIS;
+                pos -= m_device->axisInfo().transsmalldis;
                 m_motion->changeTargetPosition(m_device->axisInfo().transport, pos);
             }
             if (rightIsPress)
             {
                 double pos;
                 m_motion->getTargetPosition(m_device->axisInfo().transport, pos);
-                pos += MOVE_DIS;
+                //                pos += MOVE_DIS;
+                pos += m_device->axisInfo().transsmalldis;
                 m_motion->changeTargetPosition(m_device->axisInfo().transport, pos);
+            }
+            if (frontIsPress)
+            {
+                double pos;
+                m_motion->getTargetPosition(m_device->axisInfo().railwidth, pos);
+                pos -= m_device->axisInfo().railsmalldis;
+                m_motion->changeTargetPosition(m_device->axisInfo().railwidth, pos);
+            }
+            if (backIsPress)
+            {
+                double pos;
+                m_motion->getTargetPosition(m_device->axisInfo().railwidth, pos);
+                pos += m_device->axisInfo().railsmalldis;
+                m_motion->changeTargetPosition(m_device->axisInfo().railwidth, pos);
             }
         }
     }
@@ -351,12 +368,12 @@ void TransportSet::on_pushButtonWaitResist_toggled(bool checked)
     if (checked)
     {
         m_motion->writeOutBit(DeviceManager::OUT7, 1);
-        ui->pushButtonWaitResist->setText("关闭待料阻挡");
+        ui->pushButtonWaitResist->setText("收回待料阻挡");
     }
     else
     {
         m_motion->writeOutBit(DeviceManager::OUT7, 0);
-        ui->pushButtonWaitResist->setText("打开待料阻挡");
+        ui->pushButtonWaitResist->setText("升起待料阻挡");
     }
 }
 
@@ -365,12 +382,12 @@ void TransportSet::on_pushButtonArriveResist_toggled(bool checked)
     if (checked)
     {
         m_motion->writeOutBit(DeviceManager::OUT8, 1);
-        ui->pushButtonArriveResist->setText("关闭到位阻挡");
+        ui->pushButtonArriveResist->setText("收回到位阻挡");
     }
     else
     {
         m_motion->writeOutBit(DeviceManager::OUT8, 0);
-        ui->pushButtonArriveResist->setText("打开到位阻挡");
+        ui->pushButtonArriveResist->setText("升起到位阻挡");
     }
 }
 
@@ -379,12 +396,12 @@ void TransportSet::on_pushButtonMaterBoard_toggled(bool checked)
     if (checked)
     {
         m_motion->writeOutBit(DeviceManager::OUT9, 1);
-        ui->pushButtonMaterBoard->setText("降落物料顶板");
+        ui->pushButtonMaterBoard->setText("收回物料顶板");
     }
     else
     {
         m_motion->writeOutBit(DeviceManager::OUT9, 0);
-        ui->pushButtonMaterBoard->setText("抬升物料顶板");
+        ui->pushButtonMaterBoard->setText("升起物料顶板");
     }
 }
 
@@ -412,7 +429,7 @@ void TransportSet::on_pushButtonUnloadingPush_toggled(bool checked)
     else
     {
         m_motion->writeOutBit(DeviceManager::OUT12, 0);
-        ui->pushButtonUnloadingPush->setText("推入下料料夹");
+        ui->pushButtonUnloadingPush->setText("推出下料料夹");
     }
 }
 
@@ -421,12 +438,12 @@ void TransportSet::on_pushButtonUnloadingBoard_toggled(bool checked)
     if (checked)
     {
         m_motion->writeOutBit(DeviceManager::OUT13, 1);
-        ui->pushButtonUnloadingBoard->setText("下料夹降落顶升");
+        ui->pushButtonUnloadingBoard->setText("收回下料夹顶升");
     }
     else
     {
         m_motion->writeOutBit(DeviceManager::OUT13, 0);
-        ui->pushButtonUnloadingBoard->setText("下料夹抬升顶升");
+        ui->pushButtonUnloadingBoard->setText("升起下料夹顶升");
     }
 }
 
@@ -442,23 +459,6 @@ void TransportSet::on_pushButtonTransport_toggled(bool checked)
         ui->pushButtonTransport->setText("启动物料运输");
         m_motion->stop(m_device->axisInfo().transport, CMotionCtrlDev::STOP_IMMEDIATE);
     }
-}
-
-void TransportSet::slot_transportAxisMove()
-{
-    ArrowsButton *button = qobject_cast<ArrowsButton *>(sender());
-    if (button == ui->pushButtonLeft)
-    {
-        if (m_motion->isAvailable())
-        {
-            while (leftIsPress)
-            { m_motion->move(m_device->axisInfo().transport, -1, CMotionCtrlDev::POS_RELATIVE); }
-        }
-    }
-}
-
-void TransportSet::slot_railwidthAxisMove()
-{
 }
 
 void TransportSet::slot_timeout()
@@ -483,6 +483,14 @@ void TransportSet::slot_buttonPress(QAbstractButton *btn)
     {
         rightIsPress = true;
     }
+    else if (button == ui->pushButtonFront)
+    {
+        frontIsPress = true;
+    }
+    else if (button == ui->pushButtonBack)
+    {
+        backIsPress = true;
+    }
     m_timeId = startTimer(INTERVAL);
 }
 
@@ -494,10 +502,23 @@ void TransportSet::slot_buttonRelease(QAbstractButton *btn)
     {
         rightIsPress = false;
     }
+    else if (button == ui->pushButtonFront)
+    {
+        frontIsPress = false;
+    }
+    else if (button == ui->pushButtonBack)
+    {
+        backIsPress = false;
+    }
     killTimer(m_timeId);
     m_timeId = 0;
     if (m_motion->isAvailable())
-        m_motion->stop(m_device->axisInfo().transport, CMotionCtrlDev::STOP_IMMEDIATE);
+    {
+        if (button == ui->pushButtonLeft || button == ui->pushButtonRight)
+            m_motion->stop(m_device->axisInfo().transport, CMotionCtrlDev::STOP_IMMEDIATE);
+        if (button == ui->pushButtonFront || button == ui->pushButtonBack)
+            m_motion->stop(m_device->axisInfo().railwidth, CMotionCtrlDev::STOP_IMMEDIATE);
+    }
 }
 
 // void TransportSet::slot_leftTimeout()
@@ -512,20 +533,26 @@ void TransportSet::slot_buttonRelease(QAbstractButton *btn)
 //    { m_motion->move(m_device->axisInfo().transport, 0.5, CMotionCtrlDev::POS_RELATIVE); }
 //}
 
-void TransportSet::slot_frontTimeout()
-{
-    if (m_motion->isAvailable())
-    { m_motion->move(m_device->axisInfo().railwidth, 0.5, CMotionCtrlDev::POS_RELATIVE); }
-}
+//    void TransportSet::slot_frontTimeout()
+//    {
+//        if (m_motion->isAvailable())
+//        { m_motion->move(m_device->axisInfo().railwidth, -0.5, CMotionCtrlDev::POS_RELATIVE);
+//        }
+//    }
 
-void TransportSet::slot_backTimeout()
-{
-    if (m_motion->isAvailable())
-    { m_motion->move(m_device->axisInfo().railwidth, -0.5, CMotionCtrlDev::POS_RELATIVE); }
-}
+//    void TransportSet::slot_backTimeout()
+//    {
+//        if (m_motion->isAvailable())
+//        { m_motion->move(m_device->axisInfo().railwidth, 0.5, CMotionCtrlDev::POS_RELATIVE); }
+//    }
 
 void TransportSet::slot_loadMovePos(QAbstractButton *button)
 {
+    //检测上料夹推出，不能移动
+    uint32 value = 0;
+    m_motion->readInBit(DeviceManager::IN15, value);
+    if (value == 1) return;
+
     double pos       = 0.00;
     QPushButton *btn = qobject_cast<QPushButton *>(button);
 
@@ -593,6 +620,11 @@ void TransportSet::slot_loadPickPos(QAbstractButton *button)
 
 void TransportSet::slot_unloadMovePos(QAbstractButton *button)
 {
+    //检测下料夹推出，不能移动
+    uint32 value = 0;
+    m_motion->readInBit(DeviceManager::IN39, value);
+    if (value == 1) return;
+
     double pos       = 0.00;
     QPushButton *btn = qobject_cast<QPushButton *>(button);
 
